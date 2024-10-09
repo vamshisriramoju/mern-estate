@@ -1,24 +1,32 @@
 import User from "../models/user.model.js"; // Import the User model
 import argon2 from "argon2";
-// Signup controller
-export const signup = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+import { errorHandler } from "../utils/error.js";
 
-    // Create a new User instance
+export const signup = async (req, res, next) => {
+    const { username, email, password } = req.body;
+  
+    if (
+      !username ||
+      !email ||
+      !password ||
+      username === "" ||
+      email === "" ||
+      password === ""
+    ) {
+      next(errorHandler(400, "All fields required"));
+    }
+  
     const hashedPassword = await argon2.hash(password);
     const newUser = new User({
       username,
       email,
-      password:hashedPassword
+      password: hashedPassword,
     });
-
-    // Save the user to the database
-    await newUser.save();
-
-    res.status(201).json({ message: "User created successfully", user: newUser });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Error creating user" });
-  }
-};
+  
+    try {
+      await newUser.save();
+      res.json("signup successfull");
+    } catch (error) {
+      next(error);
+    }
+  };
