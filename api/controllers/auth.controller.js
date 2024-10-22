@@ -97,7 +97,7 @@ export const google = async (req, res, next) => {
       res
         .cookie("access_token", token, { httpOnly: true }) // This sets the cookie in the response
         .status(200)
-        .json({ ...rest});
+        .json({ ...rest });
     } else {
       const generatedPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await argon2.hash(generatedPassword, 10);
@@ -107,8 +107,7 @@ export const google = async (req, res, next) => {
           Math.random().toString(36).slice(-4),
         email: req.body.email,
         password: hashedPassword,
-        avatar: req.body.photo
-       
+        avatar: req.body.photo,
       });
       await newUser.save();
       const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
